@@ -71,7 +71,8 @@ Your user account needs these permissions in the target GCP project:
 | Option | Description | Example |
 |--------|-------------|---------|
 | `--repo OWNER/REPO` | **Required**: GitHub repository | `--repo google/my-repo` |
-| `--project PROJECT_ID` | GCP project ID (auto-detected if not provided) | `--project my-gcp-project` |
+| `--project GOOGLE_CLOUD_PROJECT` | GCP project ID (auto-detected if not provided) | `--project my-gcp-project` |
+| `--location GOOGLE_CLOUD_LOCATION` | GCP project Location (defaults to 'global') | `--location us-east1` |
 | `--pool-name NAME` | Custom pool name (default: `github`) | `--pool-name my-pool` |
 | `--help` | Show help message | |
 
@@ -83,6 +84,9 @@ Your user account needs these permissions in the target GCP project:
 
 # With specific project
 ./scripts/setup_workload_identity.sh --repo google/my-repo --project my-gcp-project
+
+# With specific project location
+./scripts/setup_workload_identity.sh --repo google/my-repo --location us-east1
 
 # Custom pool name
 ./scripts/setup_workload_identity.sh --repo google/my-repo --pool-name my-custom-pool
@@ -99,14 +103,16 @@ Your user account needs these permissions in the target GCP project:
 ## GitHub Configuration
 
 
-After running the script, add these **2 environment variables** to your repository or workflow configuration:
+After running the script, add these **4 environment variables** to your repository or workflow configuration:
 
 Go to: `https://github.com/OWNER/REPO/settings/variables/actions`
 
 | Environment Variable Name         | Description                                      |
 |-----------------------------------|--------------------------------------------------|
-| `OTLP_GCP_WIF_PROVIDER`           | Workload Identity Provider resource name          |
-| `OTLP_GOOGLE_CLOUD_PROJECT`       | Your Google Cloud project ID                      |
+| `OTLP_GCP_WIF_PROVIDER`           | Workload Identity Provider resource name         |
+| `OTLP_GOOGLE_CLOUD_PROJECT`       | Your Google Cloud project ID                     |
+| `GOOGLE_CLOUD_PROJECT`            | Your Google Cloud project ID                     |
+| `GOOGLE_CLOUD_LOCATION`           | Your Google Cloud project Location               |
 
 ## Additional Resources
 
