@@ -66,9 +66,9 @@ USAGE:
 
 REQUIRED:
     -r, --repo OWNER/REPO       GitHub repository (e.g., google/my-repo)
+    -p, --project PROJECT_ID    Google Cloud project ID (auto-detected if not provided)
 
 OPTIONS:
-    -p, --project PROJECT_ID    Google Cloud project ID (auto-detected if not provided)
     --pool-name NAME           Custom workload identity pool name (default: auto-generated)
     -h, --help                 Show this help
 
@@ -131,6 +131,16 @@ if [[ -z "${GITHUB_REPO}" ]]; then
     echo "   1. Go to your GitHub repository"
     echo "   2. The URL shows: https://github.com/OWNER/REPOSITORY"
     echo "   3. Use: OWNER/REPOSITORY (e.g., google/golang)"
+    echo ""
+    echo "Use --help for usage information."
+    exit 1
+fi
+if [[ -z "${GOOGLE_CLOUD_PROJECT}" ]]; then
+    print_error "GCP project is required. Use --project PROJECT_ID"
+    echo ""
+    echo "💡 To find your project name:"
+    echo "   1. Go to your Google Cloud console"
+    echo "   2. The URL displays: https://pantheon.corp.google.com/welcome?project=PROJECT_ID"
     echo ""
     echo "Use --help for usage information."
     exit 1
@@ -226,7 +236,30 @@ if ! gcloud iam workload-identity-pools describe "${POOL_NAME}" \
         --display-name="GitHub Actions Pool"
     print_success "Workload Identity Pool created"
 else
-    print_success "Workload Identity Pool already exists"
+    print_info "Workload Identity Pool '${POOL_NAME}' exists. Verifying state..."
+    # Fetch the current state of the existing pool.
+    POOL_STATE=$(gcloud iam workload-identity-pools describe "${POOL_NAME}" \
+        --project="${GOOGLE_CLOUD_PROJECT}" \
+        --location="${GOOGLE_CLOUD_LOCATION}" \
+        --format="value(state)")
+
+    if [[ "${POOL_STATE}" == "ACTIVE" ]]; then
+        # Pool exists and is in the correct state.
+        print_success "Workload Identity Pool already exists and is ACTIVE."
+    else
+        if [[ "${POOL_STATE}" == "DELETED" ]]; then
+        # Pool exists but is DELETED. Undelete the pool. 
+        print_warning "Workload Identity Pool already exists but is in a DELETED state. Running 'undelete'."
+        gcloud iam workload-identity-pools undelete "${POOL_NAME}" \
+            --project="${GOOGLE_CLOUD_PROJECT}" \
+            --location="${GOOGLE_CLOUD_LOCATION}"
+        else
+        # Pool exists but is in an unexpected state.
+        print_error "Pool '${POOL_NAME}' is in an unexpected state: '${POOL_STATE}'. Expected states are: {'ACTIVE', 'DELETED'}. Exiting"
+        exit 1
+
+        fi
+    fi
 fi
 
 # Get the pool ID
@@ -254,7 +287,32 @@ if ! gcloud iam workload-identity-pools providers describe "${PROVIDER_NAME}" \
         --issuer-uri="https://token.actions.githubusercontent.com"
     print_success "Workload Identity Provider created"
 else
-    print_success "Workload Identity Provider already exists"
+    print_info "Workload Identity Provider '${PROVIDER_NAME}' exists. Verifying state..."
+    # Fetch the current state of the existing provider.
+    PROVIDER_STATE=$(gcloud iam workload-identity-pools providers describe "${PROVIDER_NAME}" \
+        --project="${GOOGLE_CLOUD_PROJECT}" \
+        --location="${GOOGLE_CLOUD_LOCATION}" \
+        --workload-identity-pool="${POOL_NAME}" \
+        --format="value(state)")
+
+    if [[ "${PROVIDER_STATE}" == "ACTIVE" ]]; then
+        # Provider exists and is in the correct state.
+        print_success "Workload Identity Provider already exists and is ACTIVE."
+    else
+        if [[ "${PROVIDER_STATE}" == "DELETED" ]]; then
+        # Provider exists but is DELETED. Undelete the provider. 
+        print_warning "Workload Identity Provider already exists but is in a DELETED state. Running 'undelete'."
+        gcloud iam workload-identity-pools providers undelete "${PROVIDER_NAME}" \
+            --project="${GOOGLE_CLOUD_PROJECT}" \
+            --location="${GOOGLE_CLOUD_LOCATION}" \
+            --workload-identity-pool="${POOL_NAME}"
+        else
+        # Provider exists but is in an unexpected state.
+        print_error "Provider '${PROVIDER_NAME}' is in an unexpected state: '${PROVIDER_STATE}'. Expected states are: {'ACTIVE', 'DELETED'}. Exiting"
+        exit 1
+
+        fi
+    fi
 fi
 
 # Step 4: Grant required permissions to the Workload Identity Pool

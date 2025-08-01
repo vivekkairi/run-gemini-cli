@@ -31,15 +31,18 @@ For detailed setup instructions, see the [Workload Identity Federation documenta
 
 ### Quick Setup
 
-Run the following command from the root of this repository:
+> Note that setting up this Observability requires a Google Cloud account as well as Google Cloud CLI (install gcloud [here](https://cloud.google.com/sdk/docs/install))
 
 ```bash
-./scripts/setup_workload_identity.sh --repo <OWNER/REPO>
+./scripts/setup_workload_identity.sh --repo <OWNER/REPO> --project <PROJECT_ID>
 ```
 
 -   `<OWNER/REPO>`: Your GitHub repository in the format `owner/repo`.
+-   `<PROJECT_ID>`: Your Google Cloud `project_id`.
 
-After the script completes, it will output the values for the inputs listed above. You must add these to your GitHub repository's variables (and GEMINI_API_KEY as a secret) to complete the setup.
+After the `setup_workload_identity.sh` script finishes running, it will output a link to where you can edit your repository variables. Click on that link and then add the variables output from the script into your GitHub "Repository variables".
+
+Additionally, to complete the setup add your `GEMINI_API_KEY` as a secret - this is discussed in more detail in the `run-gemini-cli` [README](https://github.com/google-github-actions/run-gemini-cli?tab=readme-ov-file#getting-started).
 
 ## Advanced Setup
 
