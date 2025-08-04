@@ -49,10 +49,11 @@ This is the simplest method and is suitable for projects that do not require Goo
 #### Example
 
 ```yaml
-- uses: google-github-actions/run-gemini-cli@main
+- uses: 'google-github-actions/run-gemini-cli@v0'
   with:
-    prompt: "Explain this code"
-    gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+    prompt: |-
+      Explain this code
+    gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
 ```
 
 ### Method 2: Authenticating with Google Cloud
@@ -92,7 +93,7 @@ Your user account needs these permissions in the target GCP project to run the s
 Basic setup for your repository:
 
 ```shell
-./scripts/setup_workload_identity.sh --repo OWNER/REPO --project GOOGLE_CLOUD_PROJECT
+./scripts/setup_workload_identity.sh --repo "[OWNER]/[REPO]" --project "[GOOGLE_CLOUD_PROJECT]"
 ```
 
 **Required Parameters:**
@@ -102,7 +103,7 @@ Basic setup for your repository:
 For example:
 
 ```shell
-./scripts/setup_workload_identity.sh --repo google/my-repo --project my-project
+./scripts/setup_workload_identity.sh --repo "my-github-org/my-github-repo" --project "my-gcp-project"
 ```
 
 **Usage**
@@ -160,14 +161,15 @@ After running the `setup_workload_identity.sh` script, add the following variabl
 **Example**
 
 ```yaml
-- uses: google-github-actions/run-gemini-cli@main
+- uses: 'google-github-actions/run-gemini-cli@v0'
   with:
     gcp_workload_identity_provider: '${{ vars.GCP_WIF_PROVIDER }}'
     gcp_service_account: '${{ vars.SERVICE_ACCOUNT_EMAIL }}'
     gcp_project_id: '${{ vars.GOOGLE_CLOUD_PROJECT }}'
     gcp_location: '${{ vars.GOOGLE_CLOUD_LOCATION }}'
     use_vertex_ai: '${{ vars.GOOGLE_GENAI_USE_VERTEXAI }}'
-    prompt: 'Explain this code'
+    prompt: |-
+      Explain this code
 ```
 
 #### Connecting to Gemini Code Assist
@@ -193,14 +195,15 @@ After running the `setup_workload_identity.sh` script, add the following variabl
 **Example**
 
 ```yaml
-- uses: google-github-actions/run-gemini-cli@main
+- uses: 'google-github-actions/run-gemini-cli@v0'
   with:
     gcp_workload_identity_provider: '${{ vars.GCP_WIF_PROVIDER }}'
     gcp_service_account: '${{ vars.SERVICE_ACCOUNT_EMAIL }}'
     gcp_project_id: '${{ vars.GOOGLE_CLOUD_PROJECT }}'
     gcp_location: '${{ vars.GOOGLE_CLOUD_LOCATION }}'
     use_gemini_code_assist: '${{ vars.GOOGLE_GENAI_USE_GCA }}'
-    prompt: 'Explain this code'
+    prompt: |-
+      Explain this code
 ```
 
 ## GitHub Authentication
@@ -218,10 +221,10 @@ If the `APP_ID` and `APP_PRIVATE_KEY` secrets are not configured in your reposit
 *   **Limited Permissions:** The `GITHUB_TOKEN` has a restricted set of permissions. You may need to grant additional permissions directly within your workflow file to enable specific functionalities, such as:
 
 ```yaml
-permissions:                                                                                 
-    contents: read                                                                             
-    issues: write                                                                              
-    pull-requests: write
+permissions:
+  contents: 'read'
+  issues: 'write'
+  pull-requests: 'write'
 ```
 
 *   **Job-Scoped:** The token's access is limited to the repository where the workflow is running and expires when the job is complete.
@@ -244,7 +247,7 @@ For optimal security and control, we strongly recommend creating a custom GitHub
     > **Note:** Always adhere to the principle of least privilege. If your custom workflows require fewer permissions, adjust these settings accordingly.
 5.  Click **Create GitHub App**.
 
-A manifest is also available at `custom_app_manifest.yml`. For details on registering a GitHub App from a manifest, see the [GitHub documentation](https://docs.github.com/en/apps/sharing-github-apps/registering-a-github-app-from-a-manifest).
+An example manifest is also available at [`examples/github-app/custom_app_manifest.yml`](../examples/github-app/custom_app_manifest.yml). For details on registering a GitHub App from a manifest, see the [GitHub documentation](https://docs.github.com/en/apps/sharing-github-apps/registering-a-github-app-from-a-manifest).
 
 #### Step 2: Generate a Private Key and Get the App ID
 

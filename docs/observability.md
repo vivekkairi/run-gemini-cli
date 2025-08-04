@@ -19,7 +19,7 @@ The action uses its own built-in telemetry system that ensures consistent and re
 
 The Gemini CLI Action integrates OpenTelemetry to provide comprehensive observability for your workflows. This includes:
 
-- **Metrics**: Monitor performance indicators and usage statistics  
+- **Metrics**: Monitor performance indicators and usage statistics
 - **Logs**: Capture detailed information for debugging and analysis
 - **Traces**: Track the execution flow and timing of operations
 
@@ -30,7 +30,7 @@ Before enabling observability, ensure you have:
 - A Google Cloud project with billing enabled
 - Completed authentication setup (see [Authentication documentation](./authentication.md))
 - The following APIs enabled in your GCP project:
-  - Cloud Monitoring API  
+  - Cloud Monitoring API
   - Cloud Logging API
   - Cloud Trace API
 
@@ -49,13 +49,13 @@ environment.
 After running the setup script, configure your GitHub Actions workflow with the provided values:
 
 ```yaml
-- uses: google-github-actions/run-gemini-cli@main
+- uses: 'google-github-actions/run-gemini-cli@v0'
   with:
-    gcp_workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
-    gcp_project_id: ${{ vars.GOOGLE_CLOUD_PROJECT }}
-    gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+    gcp_workload_identity_provider: '${{ vars.GCP_WIF_PROVIDER }}'
+    gcp_project_id: '${{ vars.GOOGLE_CLOUD_PROJECT }}'
+    gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
     # Enable telemetry in settings
-    settings: |
+    settings: |-
       {
         "telemetry": {
           "enabled": true,
@@ -86,21 +86,22 @@ The action automatically handles the setup of the OpenTelemetry (OTel) collector
 ```yaml
 jobs:
   review:
-    runs-on: ubuntu-latest
+    runs-on: 'ubuntu-latest'
     steps:
-      - uses: google-github-actions/run-gemini-cli@main
+      - uses: 'google-github-actions/run-gemini-cli@v0'
         with:
-          gcp_workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
-          gcp_service_account: ${{ vars.SERVICE_ACCOUNT_EMAIL }}
-          gcp_project_id: ${{ vars.GOOGLE_CLOUD_PROJECT }}
-          settings: |
+          gcp_workload_identity_provider: '${{ vars.GCP_WIF_PROVIDER }}'
+          gcp_service_account: '${{ vars.SERVICE_ACCOUNT_EMAIL }}'
+          gcp_project_id: '${{ vars.GOOGLE_CLOUD_PROJECT }}'
+          settings: |-
             {
               "telemetry": {
                 "enabled": true,
                 "target": "gcp"
               }
             }
-          prompt: "Review this pull request"
+          prompt: |-
+            Review this pull request
 ```
 
 ## Disabling
@@ -108,7 +109,7 @@ jobs:
 If you prefer to disable OpenTelemetry, you can explicitly opt out by setting `enabled: false` in your settings:
 
 ```yaml
-- uses: google-github-actions/run-gemini-cli@main
+- uses: 'google-github-actions/run-gemini-cli@v0'
   with:
     gcp_workload_identity_provider: '${{ vars.GCP_WIF_PROVIDER }}'
     gcp_project_id: '${{ vars.GOOGLE_CLOUD_PROJECT }}'
@@ -127,7 +128,7 @@ If you prefer to disable OpenTelemetry, you can explicitly opt out by setting `e
 Alternatively, you can omit the `telemetry` settings entirely, as telemetry is disabled by default:
 
 ```yaml
-- uses: google-github-actions/run-gemini-cli@main
+- uses: 'google-github-actions/run-gemini-cli@v0'
   with:
     gcp_workload_identity_provider: '${{ vars.GCP_WIF_PROVIDER }}'
     gcp_project_id: '${{ vars.GOOGLE_CLOUD_PROJECT }}'
@@ -149,7 +150,7 @@ Alternatively, you can omit the `telemetry` settings entirely, as telemetry is d
 **Permission errors:**
 - Verify your service account has these roles:
   - `roles/logging.logWriter`
-  - `roles/monitoring.editor` 
+  - `roles/monitoring.editor`
   - `roles/cloudtrace.agent`
 
 For additional troubleshooting guidance, see the [Authentication documentation](./authentication.md).
