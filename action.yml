@@ -64,6 +64,10 @@ inputs:
   gemini_model:
     description: 'The model to use with Gemini.'
     required: false
+  session_summary:
+    description: 'Enable session summary tracking to save token usage and API statistics.'
+    required: false
+    default: 'false'
 
 outputs:
   summary:
@@ -171,14 +175,21 @@ runs:
         # Keep track of whether we've failed
         FAILED=false
 
+        # Build the gemini command with optional session summary
+        GEMINI_CMD="gemini"
+        if [[ "${SESSION_SUMMARY}" == "true" ]]; then
+          GEMINI_CMD="${GEMINI_CMD} --session-summary \"session_summary.json\""
+        fi
+        GEMINI_CMD="${GEMINI_CMD} --yolo --prompt \"${PROMPT}\""
+
         # Run Gemini CLI with the provided prompt, streaming responses in debug
         if [[ "${DEBUG}" = true ]]; then
           echo "::warning::Gemini CLI debug logging is enabled. This will stream responses, which could reveal sensitive information if processed with untrusted inputs."
-          if ! { gemini --yolo --prompt "${PROMPT}" 2> >(tee "${TEMP_STDERR}" >&2) | tee "${TEMP_STDOUT}"; }; then
+          if ! { eval "${GEMINI_CMD}" 2> >(tee "${TEMP_STDERR}" >&2) | tee "${TEMP_STDOUT}"; }; then
             FAILED=true
           fi
         else
-          if ! gemini --yolo --prompt "${PROMPT}" 2> "${TEMP_STDERR}" 1> "${TEMP_STDOUT}"; then
+          if ! eval "${GEMINI_CMD}" 2> "${TEMP_STDERR}" 1> "${TEMP_STDOUT}"; then
             FAILED=true
           fi
         fi
@@ -215,6 +226,7 @@ runs:
         GOOGLE_CLOUD_ACCESS_TOKEN: '${{steps.auth.outputs.access_token}}'
         PROMPT: '${{ inputs.prompt }}'
         GEMINI_MODEL: '${{ inputs.gemini_model }}'
+        SESSION_SUMMARY: '${{ fromJSON(inputs.session_summary || false) }}'
 
 branding:
   icon: 'terminal'

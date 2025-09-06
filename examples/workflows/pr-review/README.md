@@ -40,6 +40,7 @@ The PR Review workflow uses Google's Gemini AI to provide comprehensive code rev
 - **Positive Highlights**: Acknowledges good practices and well-written code
 - **Custom Instructions**: Support for specific review focus areas
 - **Structured Output**: Consistent markdown format for easy reading
+- **Token Usage Tracking**: Displays detailed token consumption and API usage statistics
 - **Failure Notifications**: Posts a comment on the PR if the review process fails.
 
 ## Setup
@@ -61,6 +62,7 @@ gha-creds-*.json
 ### Setup Methods
 
 To use this workflow, you can use either of the following methods:
+
 1. Run the `/setup-github` command in Gemini CLI on your terminal to set up workflows for your repository.
 2. Copy the workflow files into your repository's `.github/workflows` directory:
 
@@ -122,6 +124,7 @@ flowchart TD
 ### Automatic Reviews
 
 The workflow automatically triggers on:
+
 - **New PRs**: When a pull request is opened
 
 ### Manual Reviews
@@ -138,7 +141,7 @@ You can provide specific focus areas by adding instructions after the trigger:
 
 ```
 @gemini-cli /review focus on security
-@gemini-cli /review check performance and memory usage  
+@gemini-cli /review check performance and memory usage
 @gemini-cli /review please review error handling
 @gemini-cli /review look for breaking changes
 ```
@@ -146,6 +149,7 @@ You can provide specific focus areas by adding instructions after the trigger:
 ### Manual Workflow Dispatch
 
 You can also trigger reviews through the GitHub Actions UI:
+
 1. Go to Actions tab in your repository
 2. Select "Gemini PR Review" workflow
 3. Click "Run workflow"
@@ -159,25 +163,26 @@ The AI review follows a structured format, providing both a high-level summary a
 
 After posting all inline comments, the action submits the review with a final summary comment that includes:
 
--   **Review Summary**: A brief 2-3 sentence overview of the pull request and the overall assessment.
--   **General Feedback**: High-level observations about code quality, architectural patterns, positive implementation aspects, or recurring themes that were not addressed in inline comments.
-
+- **Review Summary**: A brief 2-3 sentence overview of the pull request and the overall assessment.
+- **General Feedback**: High-level observations about code quality, architectural patterns, positive implementation aspects, or recurring themes that were not addressed in inline comments.
+- **Token Usage Report**: A collapsible section showing detailed statistics about API usage, token consumption, and tool execution during the review process.
 
 ### Specific Feedback (Inline Comments)
 
 The action provides specific, actionable feedback directly on the relevant lines of code in the pull request. Each comment includes:
 
--   **Priority**: An emoji indicating the severity of the feedback.
-    -   🔴 **Critical**: Must be fixed before merging (e.g., security vulnerabilities, breaking changes).
-    -   🟠 **High**: Should be addressed (e.g., performance issues, design flaws).
-    -   🟡 **Medium**: Recommended improvements (e.g., code quality, style).
-    -   🟢 **Low**: Nice-to-have suggestions (e.g., documentation, minor refactoring).
-    -   🔵 **Unclear**: Priority is not determined.
--   **Suggestion**: A code block with a suggested change, where applicable.
+- **Priority**: An emoji indicating the severity of the feedback.
+  - 🔴 **Critical**: Must be fixed before merging (e.g., security vulnerabilities, breaking changes).
+  - 🟠 **High**: Should be addressed (e.g., performance issues, design flaws).
+  - 🟡 **Medium**: Recommended improvements (e.g., code quality, style).
+  - 🟢 **Low**: Nice-to-have suggestions (e.g., documentation, minor refactoring).
+  - 🔵 **Unclear**: Priority is not determined.
+- **Suggestion**: A code block with a suggested change, where applicable.
 
 **Example Inline Comment:**
 
 > 🟢 Use camelCase for function names
+>
 > ```suggestion
 > myFunction
 > ```
@@ -191,6 +196,21 @@ Gemini CLI analyzes multiple dimensions of code quality:
 - **Reliability**: Error handling, logging, testing coverage, edge cases
 - **Maintainability**: Code structure, documentation, naming conventions
 - **Functionality**: Logic correctness, requirements fulfillment
+
+## Token Usage Tracking
+
+The workflow automatically tracks and reports token usage statistics for transparency and cost monitoring when session summary is enabled. After each review, a detailed report is included in the PR comment showing:
+
+- **Total Tokens**: Combined input and output token consumption
+- **Input Tokens**: Tokens used for the prompt and context
+- **Output Tokens**: Tokens generated in the AI response
+- **Cached Tokens**: Tokens served from cache (cost-efficient)
+- **API Requests**: Number of API calls made to Gemini
+- **Total Latency**: Time taken for all API requests
+- **Tool Calls**: Number of tool executions (GitHub API calls, shell commands)
+- **Successful Tools**: Number of successful tool executions
+
+The token usage report appears as a collapsible dropdown in the review summary, allowing teams to monitor AI usage costs and optimize their review processes. Session summary tracking is enabled by default in this workflow.
 
 ## Configuration
 
@@ -206,6 +226,7 @@ You can customize the workflow by modifying:
 ### Review Prompt Customization
 
 The AI prompt can be customized to:
+
 - Focus on specific technologies or frameworks
 - Emphasize particular coding standards
 - Include project-specific guidelines
@@ -214,21 +235,25 @@ The AI prompt can be customized to:
 ## Examples
 
 ### Basic Review Request
+
 ```
 @gemini-cli /review
 ```
 
 ### Security-Focused Review
+
 ```
 @gemini-cli /review focus on security vulnerabilities and authentication
 ```
 
 ### Performance Review
+
 ```
 @gemini-cli /review check for performance issues and optimization opportunities
 ```
 
 ### Breaking Changes Check
+
 ```
 @gemini-cli /review look for potential breaking changes and API compatibility
 ```

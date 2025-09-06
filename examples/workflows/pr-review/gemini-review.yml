@@ -51,6 +51,7 @@ jobs:
           PULL_REQUEST_NUMBER: '${{ github.event.pull_request.number || github.event.issue.number }}'
           REPOSITORY: '${{ github.repository }}'
           ADDITIONAL_CONTEXT: '${{ inputs.additional_context }}'
+
         with:
           gemini_cli_version: '${{ vars.GEMINI_CLI_VERSION }}'
           gcp_workload_identity_provider: '${{ vars.GCP_WIF_PROVIDER }}'
@@ -101,6 +102,7 @@ jobs:
                 "run_shell_command(tail)"
               ]
             }
+          session_summary: 'true'
           prompt: |-
             ## Role
 
@@ -262,6 +264,41 @@ jobs:
 
                 - A bulleted list of general observations, positive highlights, or recurring patterns not suitable for inline comments.
                 - Keep this section concise and do not repeat details already covered in inline comments.
+
+                ## 📊 Token Usage
+
+                Use the `run_shell_command` tool to read the session summary file and display token usage information. Execute this command:
+                ```
+                cat session_summary.json
+                ```
+                
+                If the file exists, parse the JSON and create a markdown dropdown with token usage statistics including:
+                - Total tokens used
+                - Input tokens (prompt)
+                - Output tokens (candidates) 
+                - Cached tokens
+                - API requests made
+                - Total latency
+                - Tool calls executed
+                
+                Format the token usage as a collapsible markdown section:
+                ```markdown
+                <details>
+                <summary>🔍 Token Usage Report</summary>
+                
+                | Metric | Value |
+                |--------|-------|
+                | **Total Tokens** | [total] |
+                | **Input Tokens** | [prompt] |
+                | **Output Tokens** | [candidates] |
+                | **Cached Tokens** | [cached] |
+                | **API Requests** | [requests] |
+                | **Total Latency** | [latency] ms |
+                | **Tool Calls** | [tool_calls] |
+                | **Successful Tools** | [successful_tools] |
+                
+                </details>
+                ```
                 </SUMMARY>
 
             -----
