@@ -67,7 +67,7 @@ inputs:
   session_summary:
     description: 'Enable session summary tracking to save token usage and API statistics.'
     required: false
-    default: 'false'
+    default: 'true'
 
 outputs:
   summary:
